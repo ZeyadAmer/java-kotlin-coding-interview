@@ -41,23 +41,18 @@ public class Flow {
                     homeOptionsPrint();
 
                 } else if (userChoice == 2) {
-                    userModeChosen = true;
                     userMode = Modes.SingePlayer;
-                    Player ai = new Player();
-                    String aiName = "ai";
-                    ai.setName(aiName);
-                    players.add(ai);
                     gameModes.GameMode(players,userMode);
                     homeOptionsPrint();
 
 
                 } else if (userChoice == 3) {
-                    userModeChosen = true;
                     userMode = Modes.Decider;
-                    //todo create another player
                     gameModes.GameMode(players,userMode);
+                    homeOptionsPrint();
 
                 } else if (userChoice == 4) {
+                    System.out.println("Thank you for playing \nHope you enjoyed!!!.");
                     userModeChosen = true;
                 }else {
                     System.out.println("Please enter one of the numbers provided (1,2,3,4).");

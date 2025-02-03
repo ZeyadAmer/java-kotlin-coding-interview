@@ -24,7 +24,10 @@ public class GameModes {
                 break;
             case SingePlayer:
                 singlePlayer(players);
+                break;
             case Decider:
+                Decider(players);
+                break;
             default:
                 return;
         }
@@ -76,6 +79,10 @@ public class GameModes {
     private void singlePlayer(ArrayList<Player> players) throws InterruptedException {
         boolean backHome = false;
         int tie = 0;
+        Player ai = new Player();
+        String aiName = "ai";
+        ai.setName(aiName);
+        players.add(ai);
         while (!backHome) {
             int randomIndex = random.nextInt(RockPaperScissors.values().length);
             RockPaperScissors randomChoice = RockPaperScissors.values()[randomIndex];
@@ -129,6 +136,64 @@ public class GameModes {
                 else if (userChoice == 2) {
                     players.get(0).setScore(0);
                     players.remove(1);
+                    backHome = true;
+                }else
+                    System.out.println("Please enter one of the numbers provided (1,2).");
+
+
+            }
+            catch (InputMismatchException e){
+                System.out.println("invalid option number \n" +
+                        "Please enter one of the numbers provided (1,2).");
+                userInput.next();
+            }
+        }
+    }
+    private void Decider(ArrayList<Player> players) throws InterruptedException {
+        boolean backHome = false;
+        int tie = 0;
+        System.out.println("Please enter player 2 name");
+        String name = userInput.nextLine();
+        Player player2 = new Player();
+        player2.setName(name);
+        players.add(player2);
+        System.out.println("Hi " + player2.getName() + "\n");
+        Thread.sleep(1000);
+        while (!backHome) {
+            int randomPlayer1 = random.nextInt(RockPaperScissors.values().length);
+            RockPaperScissors player1Choice = RockPaperScissors.values()[randomPlayer1];
+            int randomPlayer2 = random.nextInt(RockPaperScissors.values().length);
+            RockPaperScissors player2Choice = RockPaperScissors.values()[randomPlayer2];
+
+            System.out.println(players.get(0).getName() + " got: " + player1Choice);
+            System.out.println(players.get(1).getName() + " got: " + player2Choice + "\n");
+            String result = determineWinner(player1Choice, player2Choice);
+
+            switch (result) {
+                case "player":
+                    players.get(0).setScore(players.get(0).getScore() + 1);
+                    break;
+                case "ai":
+                    players.get(1).setScore(players.get(1).getScore() + 1);
+                    break;
+                case "tie":
+                    tie++;
+                    break;
+                default:
+                    break;
+            }
+            System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
+                    "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
+                    "Draws: " + tie + "\n");
+            Thread.sleep(1000);
+            System.out.println("do you want to play again or go back to main menu\n"+
+                    "1- play again\n"+
+                    "2- main menu");
+            try{
+                userChoice = userInput.nextInt();
+                if (userChoice == 1){}
+                else if (userChoice == 2) {
+                    players.get(0).setScore(0);
                     backHome = true;
                 }else
                     System.out.println("Please enter one of the numbers provided (1,2).");

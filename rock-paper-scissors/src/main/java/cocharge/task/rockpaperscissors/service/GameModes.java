@@ -77,6 +77,7 @@ public class GameModes {
                         break;
                     }
                     System.out.println("Please enter one of the numbers provided (1,2,3).");
+                    userChoice = userInput.nextInt();
                 }
             }
             catch (InputMismatchException e){
@@ -144,12 +145,12 @@ public class GameModes {
         players.remove(1);
 
     }
-    private RockPaperScissors randomChoice() {
+    RockPaperScissors randomChoice() {
         Random random = new Random();
         int randomIndex = random.nextInt(RockPaperScissors.values().length);
         return RockPaperScissors.values()[randomIndex];
     }
-    private boolean score(ArrayList<Player> players) throws InterruptedException {
+    boolean score(ArrayList<Player> players) throws InterruptedException {
         System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
                 "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
                 "Draws: " + tie + "\n");
@@ -179,7 +180,7 @@ public class GameModes {
         }
         return false;
     }
-    private static String determineWinner(RockPaperScissors playerChoice, RockPaperScissors opponentChoice) {
+    static String determineWinner(RockPaperScissors playerChoice, RockPaperScissors opponentChoice) {
         if (playerChoice == opponentChoice) {
             return "tie";
         }

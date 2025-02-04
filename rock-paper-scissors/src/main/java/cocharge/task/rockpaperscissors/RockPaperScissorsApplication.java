@@ -10,7 +10,7 @@ public class RockPaperScissorsApplication {
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(RockPaperScissorsApplication.class, args);
         Flow gameFlow = new Flow();
-        gameFlow.homePage();
+        gameFlow.startGame();
     }
 
 }

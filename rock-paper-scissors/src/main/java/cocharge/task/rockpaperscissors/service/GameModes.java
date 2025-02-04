@@ -12,11 +12,11 @@ import java.util.Scanner;
 public class GameModes {
     int rounds;
     int userChoice = 0;
+    int tie;
+
     Scanner userInput;
-    Random random;
     public void GameMode(ArrayList<Player> players, Modes mode) throws InterruptedException {
         this.userInput = new Scanner(System.in);
-        this.random = new Random();
         this.rounds = 0;
         switch (mode) {
             case MinimalRequirement:
@@ -33,11 +33,13 @@ public class GameModes {
         }
     }
     private void minimalRequirements(ArrayList<Player> players) throws InterruptedException {
+        tie = 0;
+        Player ai = new Player("ai",0);
+        players.add(ai);
         boolean backHome = false;
         while (!backHome) {
             for (int i = 0; i < 100; i++) {
-                int randomIndex = random.nextInt(RockPaperScissors.values().length);
-                RockPaperScissors randomChoice = RockPaperScissors.values()[randomIndex];
+                RockPaperScissors randomChoice = randomChoice();
                 switch (randomChoice) {
                     case PAPER:
                         players.get(1).setScore(players.get(1).getScore() + 1);
@@ -46,59 +48,36 @@ public class GameModes {
                         players.get(0).setScore(players.get(0).getScore() + 1);
                         break;
                     case ROCK:
+                        tie++;
                         break;
                 }
             }
-            System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + " of 100 games\n" +
-                    "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + " of 100 games\n" +
-                    "Draws: " + (100 - players.get(1).getScore() - players.get(0).getScore()) + "\n");
+            backHome = score(players);
             players.get(0).setScore(0);
             players.get(1).setScore(0);
-            Thread.sleep(1000);
-            System.out.println("do you want to play again or go back to main menu\n"+
-                    "1- play again\n"+
-                    "2- main menu");
-            try{
-                userChoice = userInput.nextInt();
-                if (userChoice == 1){}
-                else if (userChoice == 2)
-                    backHome = true;
-                else
-                    System.out.println("Please enter one of the numbers provided (1,2).");
-
-
-            }
-            catch (InputMismatchException e){
-                System.out.println("invalid option number \n" +
-                        "Please enter one of the numbers provided (1,2).");
-                userInput.next();
-            }
+            tie = 0;
         }
+        players.remove(1);
     }
 
     private void singlePlayer(ArrayList<Player> players) throws InterruptedException {
         boolean backHome = false;
-        int tie = 0;
-        Player ai = new Player();
-        String aiName = "ai";
-        ai.setName(aiName);
+        tie = 0;
+        Player ai = new Player("ai",0);
         players.add(ai);
         while (!backHome) {
-            int randomIndex = random.nextInt(RockPaperScissors.values().length);
-            RockPaperScissors randomChoice = RockPaperScissors.values()[randomIndex];
+            RockPaperScissors randomChoice = randomChoice();
             RockPaperScissors userFighter = null;
             System.out.println("1- Rock \n2- Paper \n3- Scissors");
             try{
                 userChoice = userInput.nextInt();
-                if (userChoice == 1)
-                    userFighter = RockPaperScissors.ROCK;
-                else if (userChoice == 2)
-                    userFighter = RockPaperScissors.PAPER;
-                else if(userChoice == 3)
-                    userFighter = RockPaperScissors.SCISSORS;
-                else
+                while(true){
+                    userFighter = RockPaperScissors.fromInt(userChoice);
+                    if(userFighter != null){
+                        break;
+                    }
                     System.out.println("Please enter one of the numbers provided (1,2,3).");
-
+                }
             }
             catch (InputMismatchException e){
                 System.out.println("invalid option number \n" +
@@ -111,10 +90,10 @@ public class GameModes {
             String result = determineWinner(userFighter, randomChoice);
 
             switch (result) {
-                case "player":
+                case "player1":
                     players.get(0).setScore(players.get(0).getScore() + 1);
                     break;
-                case "ai":
+                case "player2":
                     players.get(1).setScore(players.get(1).getScore() + 1);
                     break;
                 case "tie":
@@ -123,57 +102,34 @@ public class GameModes {
                 default:
                     break;
             }
-            System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
-                    "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
-                    "Draws: " + tie + "\n");
-            Thread.sleep(1000);
-            System.out.println("do you want to play again or go back to main menu\n"+
-                    "1- play again\n"+
-                    "2- main menu");
-            try{
-                userChoice = userInput.nextInt();
-                if (userChoice == 1){}
-                else if (userChoice == 2) {
-                    players.get(0).setScore(0);
-                    players.remove(1);
-                    backHome = true;
-                }else
-                    System.out.println("Please enter one of the numbers provided (1,2).");
-
-
-            }
-            catch (InputMismatchException e){
-                System.out.println("invalid option number \n" +
-                        "Please enter one of the numbers provided (1,2).");
-                userInput.next();
-            }
+            backHome = score(players);
         }
+        players.remove(1);
+
     }
+
     private void Decider(ArrayList<Player> players) throws InterruptedException {
         boolean backHome = false;
-        int tie = 0;
+        tie = 0;
         System.out.println("Please enter player 2 name");
         String name = userInput.nextLine();
-        Player player2 = new Player();
-        player2.setName(name);
+        Player player2 = new Player(name,0);
         players.add(player2);
         System.out.println("Hi " + player2.getName() + "\n");
         Thread.sleep(1000);
         while (!backHome) {
-            int randomPlayer1 = random.nextInt(RockPaperScissors.values().length);
-            RockPaperScissors player1Choice = RockPaperScissors.values()[randomPlayer1];
-            int randomPlayer2 = random.nextInt(RockPaperScissors.values().length);
-            RockPaperScissors player2Choice = RockPaperScissors.values()[randomPlayer2];
+            RockPaperScissors player1Choice = randomChoice();
+            RockPaperScissors player2Choice = randomChoice();
 
             System.out.println(players.get(0).getName() + " got: " + player1Choice);
             System.out.println(players.get(1).getName() + " got: " + player2Choice + "\n");
             String result = determineWinner(player1Choice, player2Choice);
 
             switch (result) {
-                case "player":
+                case "player1":
                     players.get(0).setScore(players.get(0).getScore() + 1);
                     break;
-                case "ai":
+                case "player2":
                     players.get(1).setScore(players.get(1).getScore() + 1);
                     break;
                 case "tie":
@@ -182,19 +138,34 @@ public class GameModes {
                 default:
                     break;
             }
-            System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
-                    "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
-                    "Draws: " + tie + "\n");
-            Thread.sleep(1000);
-            System.out.println("do you want to play again or go back to main menu\n"+
-                    "1- play again\n"+
-                    "2- main menu");
+
+            backHome = score(players);
+        }
+        players.remove(1);
+
+    }
+    private RockPaperScissors randomChoice() {
+        Random random = new Random();
+        int randomIndex = random.nextInt(RockPaperScissors.values().length);
+        return RockPaperScissors.values()[randomIndex];
+    }
+    private boolean score(ArrayList<Player> players) throws InterruptedException {
+        System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
+                "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
+                "Draws: " + tie + "\n");
+        Thread.sleep(1000);
+        System.out.println("do you want to play again or go back to main menu\n"+
+                "1- play again\n"+
+                "2- main menu");
+        boolean validAnswer = false;
+        while(!validAnswer){
             try{
                 userChoice = userInput.nextInt();
-                if (userChoice == 1){}
+                if (userChoice == 1)
+                    validAnswer = true;
                 else if (userChoice == 2) {
                     players.get(0).setScore(0);
-                    backHome = true;
+                    return true;
                 }else
                     System.out.println("Please enter one of the numbers provided (1,2).");
 
@@ -206,6 +177,7 @@ public class GameModes {
                 userInput.next();
             }
         }
+        return false;
     }
     private static String determineWinner(RockPaperScissors playerChoice, RockPaperScissors opponentChoice) {
         if (playerChoice == opponentChoice) {
@@ -214,11 +186,11 @@ public class GameModes {
 
         switch (playerChoice) {
             case ROCK:
-                return (opponentChoice == RockPaperScissors.SCISSORS) ? "player" : "ai";
+                return (opponentChoice == RockPaperScissors.SCISSORS) ? "player1" : "player2";
             case PAPER:
-                return (opponentChoice == RockPaperScissors.ROCK) ? "player" : "ai";
+                return (opponentChoice == RockPaperScissors.ROCK) ? "player1" : "player2";
             case SCISSORS:
-                return (opponentChoice == RockPaperScissors.PAPER) ? "player" : "ai";
+                return (opponentChoice == RockPaperScissors.PAPER) ? "player1" : "player2";
             default:
                 return "Invalid choice.";
         }

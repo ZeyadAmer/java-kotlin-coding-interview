@@ -1,28 +1,27 @@
-package cocharge.task.rockpaperscissors.model;
+package cocharge.task.rockpaperscissors.model
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+class ModesTests {
 
-public class ModesTests {
     @Test
-    void testFromInt_ValidInputs() {
-        assertEquals(Modes.MinimalRequirement, Modes.fromInt(1));
-        assertEquals(Modes.SingePlayer, Modes.fromInt(2));
-        assertEquals(Modes.Decider, Modes.fromInt(3));
+    fun `test fromInt with valid inputs`() {
+        assertEquals(Modes.MinimalRequirement, Modes.fromInt(1))
+        assertEquals(Modes.SinglePlayer, Modes.fromInt(2))
+        assertEquals(Modes.Decider, Modes.fromInt(3))
     }
 
     @Test
-    void testFromInt_InvalidInput() {
-        assertNull(Modes.fromInt(0));
-        assertNull(Modes.fromInt(4));
-        assertNull(Modes.fromInt(-1));
+    fun `test fromInt with invalid input`() {
+        assertNull(Modes.fromInt(0))
+        assertNull(Modes.fromInt(4))
+        assertNull(Modes.fromInt(-1))
     }
 
     @Test
-    void testFromInt_BoundaryInputs() {
-        assertNull(Modes.fromInt(Integer.MAX_VALUE));
-        assertNull(Modes.fromInt(Integer.MIN_VALUE));
+    fun `test fromInt with boundary inputs`() {
+        assertNull(Modes.fromInt(Int.MAX_VALUE))
+        assertNull(Modes.fromInt(Int.MIN_VALUE))
     }
 }

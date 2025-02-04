@@ -1,16 +1,18 @@
-package cocharge.task.rockpaperscissors.model;
+package cocharge.task.rockpaperscissors.model
 
-public enum RockPaperScissors {
+enum class RockPaperScissors {
     ROCK,
     PAPER,
     SCISSORS;
 
-    public static RockPaperScissors fromInt(int userChoice){
-        switch (userChoice){
-            case 1: return ROCK;
-            case 2: return PAPER;
-            case 3: return SCISSORS;
-            default: return null;
+    companion object {
+        fun fromInt(userChoice: Int): RockPaperScissors? {
+        return when (userChoice) {
+            1 -> ROCK
+            2 -> PAPER
+            3 -> SCISSORS
+                else -> null
+        }
         }
     }
 }

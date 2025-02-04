@@ -1,21 +1,18 @@
-package cocharge.task.rockpaperscissors.model;
+package cocharge.task.rockpaperscissors.model
 
-public enum Modes {
+enum class Modes {
     Decider,
     MinimalRequirement,
-    SingePlayer;
+    SinglePlayer;
 
-
-    public static Modes fromInt(int userInput) {
-        switch (userInput) {
-            case 1:
-                return Modes.MinimalRequirement;
-            case 2:
-                return Modes.SingePlayer;
-            case 3:
-                return Modes.Decider;
-            default:
-                return null;
+    companion object {
+        fun fromInt(userInput: Int): Modes? {
+        return when (userInput) {
+            1 -> MinimalRequirement
+            2 -> SinglePlayer
+            3 -> Decider
+                else -> null
+        }
         }
     }
-    }
+}

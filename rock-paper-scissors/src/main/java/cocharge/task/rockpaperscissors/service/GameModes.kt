@@ -1,199 +1,159 @@
-package cocharge.task.rockpaperscissors.service;
+package cocharge.task.rockpaperscissors.service
 
-import cocharge.task.rockpaperscissors.model.Modes;
-import cocharge.task.rockpaperscissors.model.Player;
-import cocharge.task.rockpaperscissors.model.RockPaperScissors;
+import cocharge.task.rockpaperscissors.model.Modes
+import cocharge.task.rockpaperscissors.model.Player
+import cocharge.task.rockpaperscissors.model.RockPaperScissors
+import java.util.Random
+import java.util.Scanner
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Random;
-import java.util.Scanner;
+class GameModes {
+    private var rounds = 0
+    private var userChoice = 0
+    private var tie = 0
+    private val userInput = Scanner(System.`in`)
 
-public class GameModes {
-    int rounds;
-    int userChoice = 0;
-    int tie;
-
-    Scanner userInput;
-    public void GameMode(ArrayList<Player> players, Modes mode) throws InterruptedException {
-        this.userInput = new Scanner(System.in);
-        this.rounds = 0;
-        switch (mode) {
-            case MinimalRequirement:
-                minimalRequirements(players);
-                break;
-            case SingePlayer:
-                singlePlayer(players);
-                break;
-            case Decider:
-                Decider(players);
-                break;
-            default:
-                return;
+    fun gameMode(players: MutableList<Player>, mode: Modes) {
+        rounds = 0
+        when (mode) {
+            Modes.MinimalRequirement -> minimalRequirements(players)
+            Modes.SinglePlayer -> singlePlayer(players)
+            Modes.Decider -> decider(players)
         }
     }
-    private void minimalRequirements(ArrayList<Player> players) throws InterruptedException {
-        tie = 0;
-        Player ai = new Player("ai",0);
-        players.add(ai);
-        boolean backHome = false;
+
+    private fun minimalRequirements(players: MutableList<Player>) {
+        tie = 0
+        val ai = Player("AI", 0)
+        players.add(ai)
+        var backHome = false
+
         while (!backHome) {
-            for (int i = 0; i < 100; i++) {
-                RockPaperScissors randomChoice = randomChoice();
-                switch (randomChoice) {
-                    case PAPER:
-                        players.get(1).setScore(players.get(1).getScore() + 1);
-                        break;
-                    case SCISSORS:
-                        players.get(0).setScore(players.get(0).getScore() + 1);
-                        break;
-                    case ROCK:
-                        tie++;
-                        break;
+            repeat(100) {
+                when (randomChoice()) {
+                    RockPaperScissors.PAPER -> players[1].score++
+                    RockPaperScissors.SCISSORS -> players[0].score++
+                    RockPaperScissors.ROCK -> tie++
                 }
             }
-            backHome = score(players);
-            players.get(0).setScore(0);
-            players.get(1).setScore(0);
-            tie = 0;
+            backHome = score(players)
+            players[0].score = 0
+            players[1].score = 0
+            tie = 0
         }
-        players.remove(1);
+        players.removeAt(1)
     }
 
-    private void singlePlayer(ArrayList<Player> players) throws InterruptedException {
-        boolean backHome = false;
-        tie = 0;
-        Player ai = new Player("ai",0);
-        players.add(ai);
+    private fun singlePlayer(players: MutableList<Player>) {
+        var backHome = false
+        tie = 0
+        val ai = Player("AI", 0)
+        players.add(ai)
+
         while (!backHome) {
-            RockPaperScissors randomChoice = randomChoice();
-            RockPaperScissors userFighter = null;
-            System.out.println("1- Rock \n2- Paper \n3- Scissors");
-            try{
-                userChoice = userInput.nextInt();
-                while(true){
-                    userFighter = RockPaperScissors.fromInt(userChoice);
-                    if(userFighter != null){
-                        break;
+            val randomChoice = randomChoice()
+            var userFighter: RockPaperScissors?
+
+            println("1- Rock \n2- Paper \n3- Scissors")
+            try {
+                userChoice = userInput.nextInt()
+                while (true) {
+                    userFighter = RockPaperScissors.fromInt(userChoice)
+                    if (userFighter != null) break
+                    println("Please enter one of the numbers provided (1,2,3).")
+                    userChoice = userInput.nextInt()
+                }
+            } catch (e: Exception) {
+                println("Invalid option number \nPlease enter one of the numbers provided (1,2,3).")
+                userInput.next()
+                continue
+            }
+
+            println("You chose: $userFighter")
+            println("The opponent chose: $randomChoice\n")
+
+            when (determineWinner(userFighter!!, randomChoice)) {
+                "player1" -> players[0].score++
+                "player2" -> players[1].score++
+                "tie" -> tie++
+            }
+
+            backHome = score(players)
+        }
+        players.removeAt(1)
+    }
+
+    private fun decider(players: MutableList<Player>) {
+        var backHome = false
+        tie = 0
+        println("Please enter player 2 name")
+        val name = userInput.next()
+        val player2 = Player(name, 0)
+        players.add(player2)
+
+        println("Hi ${player2.name}\n")
+        Thread.sleep(1000)
+
+        while (!backHome) {
+            val player1Choice = randomChoice()
+            val player2Choice = randomChoice()
+
+            println("${players[0].name} got: $player1Choice")
+            println("${players[1].name} got: $player2Choice\n")
+
+            when (determineWinner(player1Choice, player2Choice)) {
+                "player1" -> players[0].score++
+                "player2" -> players[1].score++
+                "tie" -> tie++
+            }
+
+            backHome = score(players)
+        }
+        players.removeAt(1)
+    }
+
+    private fun randomChoice(): RockPaperScissors {
+        return RockPaperScissors.values().random()
+    }
+
+    private fun score(players: MutableList<Player>): Boolean {
+        println(
+            "Player ${players[0].name} wins: ${players[0].score}\n" +
+                    "Player ${players[1].name} wins: ${players[1].score}\n" +
+                    "Draws: $tie\n"
+        )
+        Thread.sleep(1000)
+
+        println("Do you want to play again or go back to main menu?\n1- Play again\n2- Main menu")
+        while (true) {
+            try {
+                userChoice = userInput.nextInt()
+                return when (userChoice) {
+                    1 -> false
+                    2 -> {
+                        players[0].score = 0
+                        true
                     }
-                    System.out.println("Please enter one of the numbers provided (1,2,3).");
-                    userChoice = userInput.nextInt();
+                    else -> {
+                        println("Please enter one of the numbers provided (1,2).")
+                        false
+                    }
                 }
-            }
-            catch (InputMismatchException e){
-                System.out.println("invalid option number \n" +
-                        "Please enter one of the numbers provided (1,2).");
-                userInput.next();
-                continue;
-            }
-            System.out.println("You chose: " + userFighter);
-            System.out.println("The opponent chose: " + randomChoice + "\n");
-            String result = determineWinner(userFighter, randomChoice);
-
-            switch (result) {
-                case "player1":
-                    players.get(0).setScore(players.get(0).getScore() + 1);
-                    break;
-                case "player2":
-                    players.get(1).setScore(players.get(1).getScore() + 1);
-                    break;
-                case "tie":
-                    tie++;
-                    break;
-                default:
-                    break;
-            }
-            backHome = score(players);
-        }
-        players.remove(1);
-
-    }
-
-    private void Decider(ArrayList<Player> players) throws InterruptedException {
-        boolean backHome = false;
-        tie = 0;
-        System.out.println("Please enter player 2 name");
-        String name = userInput.nextLine();
-        Player player2 = new Player(name,0);
-        players.add(player2);
-        System.out.println("Hi " + player2.getName() + "\n");
-        Thread.sleep(1000);
-        while (!backHome) {
-            RockPaperScissors player1Choice = randomChoice();
-            RockPaperScissors player2Choice = randomChoice();
-
-            System.out.println(players.get(0).getName() + " got: " + player1Choice);
-            System.out.println(players.get(1).getName() + " got: " + player2Choice + "\n");
-            String result = determineWinner(player1Choice, player2Choice);
-
-            switch (result) {
-                case "player1":
-                    players.get(0).setScore(players.get(0).getScore() + 1);
-                    break;
-                case "player2":
-                    players.get(1).setScore(players.get(1).getScore() + 1);
-                    break;
-                case "tie":
-                    tie++;
-                    break;
-                default:
-                    break;
-            }
-
-            backHome = score(players);
-        }
-        players.remove(1);
-
-    }
-    RockPaperScissors randomChoice() {
-        Random random = new Random();
-        int randomIndex = random.nextInt(RockPaperScissors.values().length);
-        return RockPaperScissors.values()[randomIndex];
-    }
-    boolean score(ArrayList<Player> players) throws InterruptedException {
-        System.out.println("Player " + players.get(0).getName() + " wins " + players.get(0).getScore() + "\n" +
-                "Player " + players.get(1).getName() + " wins " + players.get(1).getScore() + "\n" +
-                "Draws: " + tie + "\n");
-        Thread.sleep(1000);
-        System.out.println("do you want to play again or go back to main menu\n"+
-                "1- play again\n"+
-                "2- main menu");
-        boolean validAnswer = false;
-        while(!validAnswer){
-            try{
-                userChoice = userInput.nextInt();
-                if (userChoice == 1)
-                    validAnswer = true;
-                else if (userChoice == 2) {
-                    players.get(0).setScore(0);
-                    return true;
-                }else
-                    System.out.println("Please enter one of the numbers provided (1,2).");
-
-
-            }
-            catch (InputMismatchException e){
-                System.out.println("invalid option number \n" +
-                        "Please enter one of the numbers provided (1,2).");
-                userInput.next();
+            } catch (e: Exception) {
+                println("Invalid option number \nPlease enter one of the numbers provided (1,2).")
+                userInput.next()
             }
         }
-        return false;
     }
-    static String determineWinner(RockPaperScissors playerChoice, RockPaperScissors opponentChoice) {
-        if (playerChoice == opponentChoice) {
-            return "tie";
-        }
 
-        switch (playerChoice) {
-            case ROCK:
-                return (opponentChoice == RockPaperScissors.SCISSORS) ? "player1" : "player2";
-            case PAPER:
-                return (opponentChoice == RockPaperScissors.ROCK) ? "player1" : "player2";
-            case SCISSORS:
-                return (opponentChoice == RockPaperScissors.PAPER) ? "player1" : "player2";
-            default:
-                return "Invalid choice.";
+    companion object {
+        fun determineWinner(playerChoice: RockPaperScissors, opponentChoice: RockPaperScissors): String {
+            return when {
+                playerChoice == opponentChoice -> "tie"
+                (playerChoice == RockPaperScissors.ROCK && opponentChoice == RockPaperScissors.SCISSORS) ||
+                        (playerChoice == RockPaperScissors.PAPER && opponentChoice == RockPaperScissors.ROCK) ||
+                        (playerChoice == RockPaperScissors.SCISSORS && opponentChoice == RockPaperScissors.PAPER) -> "player1"
+                else -> "player2"
+            }
         }
     }
 }
